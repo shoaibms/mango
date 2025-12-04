@@ -12,13 +12,42 @@
 
 ### The Challenge: The Structure Cliff
 
-Genomic selection promises to accelerate tree crop breeding but routinely fails when models are transferred between ancestry groups (e.g., Indian vs. Southeast Asian germplasm). This phenomenon—the **"Structure Cliff"**—has historically limited global breeding efforts, yet lacked mechanistic explanation.
+Genomic selection promises to accelerate tree crop breeding, but predictive accuracy often collapses when models are moved between ancestry groups—a **Structure Cliff**. This has quietly limited global breeding efforts, while remaining poorly quantified and mechanistically unexplained.
+
+This repository contains the full, reproducible analysis behind a 225-accession *Mangifera indica* diversity panel spanning Indian, Southeast Asian, and Floridian gene pools. We ask, trait-by-trait:
+
+- Which fruit quality traits retain predictive accuracy across ancestries?
+- When can a small structural haplotype panel replace a dense genome-wide SNP panel?
+- Does deep learning uncover hidden epistasis, or simply re-express additive structure?
 
 ### The Solution: Structural Super-Genes
 
-By integrating 17 megabase-scale inversions with interpretable deep learning in a 225-accession mango diversity panel, we demonstrate that **chromosomal inversions behave as additive super-genes**. These structural blocks allow specific traits to bridge the cliff, retaining predictive power where polygenic signals fail.
+The answer is that a handful of structural haplotypes behave as **additive super-genes**, preserving genomic prediction across ancestries for colour and vigour traits, while other traits (sugars, firmness) collapse into non-transferable, local polygenic architecture.
 
-**Zero-Cost Deployment:** We convert existing public WGS data into a breeder-ready toolkit—without generating a single new genotype.
+> This repository is intended for quantitative geneticists, breeders, and ML practitioners working on structured perennial crops.
+
+---
+
+## Key Findings
+
+| Finding | Evidence |
+|---------|----------|
+| **Structure Cliff is trait-specific** | Under leave-cluster-out CV, cross-ancestry accuracy ranges from r ≈ 0.19 (FBC) to r < 0 for firmness and TSS, indicating complete failure for some traits. |
+| **Inversions act as super-genes** | A 17-marker structural inversion panel captures ≈82% of the accuracy of a 19,790-SNP genome-wide panel for fruit blush colour and remains predictive across gene pools. |
+| **Strict additivity confirmed** | Wide & Deep synergy scores explain <0.1% of variance beyond block main effects, supporting additive "super-gene" behaviour rather than pervasive hidden epistasis. |
+| **Architecture trumps algorithm** | BINN gains are driven mostly by biologically informed feature selection; even with improved within-population r, cross-ancestry portability still fails for polygenic traits. |
+| **Zero-cost breeder toolkit** | Public whole-genome sequencing is converted into a breeder-ready marker toolkit with no new genotyping required, using inversion panels and ancestry-aware thresholds. |
+
+---
+
+## Workflow Overview
+
+The analysis is organised into four conceptual blocks:
+
+1. **Core data construction (Idea 1)** — Build genotype–phenotype matrices and quantify the Structure Cliff under different CV schemes.
+2. **Structural haplotypes (Idea 2)** — Define inversion-tagging marker panels and benchmark against matched random panels.
+3. **Deep learning + interpretability (Idea 3)** — Train Wide & Deep models, run saliency/SHAP, and perform virtual allele editing.
+4. **Biologically Informed Neural Network (BINN)** — Constrain the network to gene regions, estimate gene-level importance, and derive the Precision Breeding Hierarchy.
 
 ---
 
@@ -97,17 +126,6 @@ flowchart TB
 
 ---
 
-## Key Findings
-
-| Discovery | Statistic | Impact |
-|-----------|-----------|--------|
-| **The "Super-Gene" Effect** | A single 5-SNP inversion block captures ≥80% accuracy of 20k SNPs for fruit colour | Enables low-cost screening with high accuracy |
-| **Structure Cliff Quantified** | Polygenic traits lose >100% accuracy (r < 0) across ancestries | Proves local recalibration is mandatory |
-| **AI Confirms Additivity** | Virtual editing revealed <0.1% synergy scores | Debunks "hidden epistasis" hypothesis |
-| **Genetic Gain Projected** | Tier 1 traits project 16–18% gain per cycle using global markers | Accelerates perennial crop improvement |
-
----
-
 ## Precision Breeding Hierarchy
 
 ```mermaid
@@ -135,32 +153,6 @@ flowchart TB
     class H,I,J actionNode
     class B,C,D decisionNode
 ```
-
----
-
-## The Breeder's Toolkit
-
-Beyond the analysis pipeline, this repository provides immediate resources for molecular breeding:
-
-| Resource | Description |
-|----------|-------------|
-| **Diagnostic Markers** | Flanking sequences for KASP-ready assays targeting portable structural inversions |
-| **Haplotype Catalogues** | Effect sizes for key inversions converted into breeder-interpretable units (SD shift) |
-| **Genetic Gain Projections** | Estimated gain per cycle for Global (Tier 1) vs. Local (Tier 3) deployment |
-| **KASP Panel Design** | 60 bp upstream/downstream sequences for immediate assay development |
-
----
-
-## Deep Learning for Mechanism, Not Just Prediction
-
-We utilise Wide & Deep networks and Biologically Informed Neural Networks (BINN) not to chase marginal accuracy gains, but as **hypothesis-testing engines**:
-
-| Approach | Insight |
-|----------|---------|
-| **Saliency Mapping** | Prediction relies on diffuse polygenic backbones, except where structural "knobs" exist |
-| **Virtual Allele Editing** | Structural haplotypes act as quasi-Mendelian, additive units with no trade-offs |
-| **BINN Decomposition** | ~60% of accuracy gains from biologically informed feature selection; ~40% from architecture |
-| **No Cryptic Epistasis** | Models confirm the structure cliff is architectural, not a failure of linear modelling |
 
 ---
 
@@ -228,13 +220,11 @@ We utilise Wide & Deep networks and Biologically Informed Neural Networks (BINN)
 │
 ├── figures/
 │   ├── figure_config.py                    # Shared figure configuration
-│   │   # Main Figures
 │   ├── figure_1.py                         # Population structure and structure cliff
 │   ├── figure_2.py                         # Structural haplotypes as predictors
 │   ├── figure_3.py                         # Deep learning confirms additivity
 │   ├── figure_4.py                         # Polygenic backbones and gene hubs
 │   ├── figure_5.py                         # Precision breeding hierarchy
-│   │   # Supplementary Figures
 │   ├── figure_S1.py                        # Phenotype distributions and PC3-PC4
 │   ├── figure_S2.py                        # GWAS landscape and inversion context
 │   ├── figure_S3.py                        # CV diagnostics and structure correction
@@ -254,18 +244,85 @@ We utilise Wide & Deep networks and Biologically Informed Neural Networks (BINN)
 
 ## Installation
 
+Clone the repository and create the conda environment:
+
 ```bash
-# Clone repository
 git clone https://github.com/shoaibms/mango.git
 cd mango
 
-# Create environment
+# Create environment (environment.yml defines the name 'mango-gs')
 conda env create -f environment.yml
 conda activate mango-gs
 
-# Or use pip
-pip install -r requirements.txt
+# Alternatively, with pip:
+# python -m venv venv
+# source venv/bin/activate        # or venv\Scripts\activate on Windows
+# pip install -r requirements.txt
 ```
+
+---
+
+## Quick Start: Reproduce Core Results
+
+After activating the environment from the project root:
+
+```bash
+# 1. Build core genotype + phenotype matrices (Idea 1)
+python 01_genomic_prediction/01_build_core_matrices.py
+
+# 2. Run structure-aware genomic prediction and Structure Cliff analysis
+python 01_genomic_prediction/03_gs_structure_aware_cv.py
+
+# 3. Benchmark structural inversion panels vs random panels (Idea 2)
+python 02_structural_haplotypes/08_random_vs_inversion_control_idea2.py
+
+# 4. Train Wide & Deep and run final virtual editing (Idea 3)
+python 03_deep_learning/04_train_wide_deep_multitask.py
+python 03_deep_learning/08c_final_virtual_editing.py
+
+# 5. Train BINN and generate the Precision Breeding Hierarchy
+python 04_binn/12_binn_train.py
+python 04_binn/20_generate_hierarchy_figure.py
+```
+
+Each script writes CSV outputs into the `output/` tree and figures (PDF/PNG) into `figures/`. Figure scripts are one-to-one with the manuscript's main figures.
+
+---
+
+## Zero-Cost Deployment for Breeding Programs
+
+A central design goal of this work is **zero marginal genotyping cost**:
+
+- We take existing public WGS data and derive a **minimal inversion and marker toolkit**.
+- These markers are designed for KASP (or similar) assays and validated under cross-ancestry prediction.
+- This makes it possible to deploy global, ancestry-aware selection for key traits without generating a single new genotype.
+
+Breeding programs can adopt Tier 1 structural panels immediately and layer genomic selection (Tier 2) or local recalibration (Tier 3) only where justified.
+
+---
+
+## Deep Learning for Mechanism, Not Just Prediction
+
+We utilise Wide & Deep networks and Biologically Informed Neural Networks (BINN) not to chase marginal accuracy gains, but as **hypothesis-testing engines**:
+
+| Approach | Insight |
+|----------|---------|
+| **Saliency Mapping** | Prediction relies on diffuse polygenic backbones, except where structural "knobs" exist |
+| **Virtual Allele Editing** | Structural haplotypes act as quasi-Mendelian, additive units with no trade-offs |
+| **BINN Decomposition** | ~60% of accuracy gains from biologically informed feature selection; ~40% from architecture |
+| **No Cryptic Epistasis** | Models confirm the structure cliff is architectural, not a failure of linear modelling |
+
+---
+
+## Data
+
+This study re-analyses publicly available data:
+
+- **Genotypes:** Munyengwa et al. (2025) — 225 accessions, ~10M SNPs
+- **Inversions:** Wilkinson et al. (2025) — 17 megabase-scale structural variants
+- **Phenotypes:** BLUPs for FBC, FF, AFW, TSS, TC from multi-year trials (1999–2024)
+
+---
 
 ## Requirements
 
@@ -281,43 +338,36 @@ pip install -r requirements.txt
 
 ---
 
-## Data
-
-This study re-analyses publicly available data:
-
-- **Genotypes:** Munyengwa et al. (2025) — 225 accessions, ~10M SNPs
-- **Inversions:** Wilkinson et al. (2025) — 17 megabase-scale structural variants
-- **Phenotypes:** BLUPs for FBC, FF, AFW, TSS, TC from multi-year trials (1999–2024)
-
----
-
 ## Beyond Mango
 
-While demonstrated in *Mangifera indica*, this workflow—combining **Structure-Aware Cross-Validation**, **Structural Variant Cartography**, and **Interpretable AI**—is designed as a general recipe for any structured, long-lived crop facing strong population stratification:
+Although developed in mango, the framework is generic:
 
-- Citrus
-- Apple
-- Grape
-- Avocado
-- Cacao
-- Coffee
+- **Structured perennials:** coffee, cacao, citrus, grapevine, avocado, apple.
+- **Tiered deployment:** identify traits suitable for global markers vs full GS vs local, cluster-specific models.
+- **Mechanistic ML:** use deep learning primarily for **mechanistic dissection** (saliency, SHAP, virtual editing, BINN), not just for small accuracy gains.
 
-The code is modular and adaptable to other species.
+The codebase is modular and can be adapted to other species with minimal changes to the input genotype/phenotype formats.
 
 ---
 
 ## Citation
 
+If you use this code or concepts in your work, please cite:
+
 ```
 [Citation to be added upon publication]
 ```
+
+---
 
 ## License
 
 MIT License — see [LICENSE](LICENSE) for details.
 
+---
+
 ## Contact
 
-**Shoaib M. Mirza** — shoaibmirza2200@gmail.com
+**Shoaib M. Mirza** — <shoaibmirza2200@gmail.com>
 
-Project: [https://github.com/shoaibms/mango](https://github.com/shoaibms/mango)
+Project: <https://github.com/shoaibms/mango>
