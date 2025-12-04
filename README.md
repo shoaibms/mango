@@ -232,7 +232,6 @@ flowchart TB
 │   ├── figure_S5.py                        # Deep learning saliency and GWAS concordance
 │   └── figure_S6.py                        # BINN training and hub gene details
 │
-├── environment.yml
 ├── requirements.txt
 └── README.md
 ```
