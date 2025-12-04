@@ -316,7 +316,7 @@ This study re-analyses publicly available data:
 
 - **Genotypes:** Munyengwa et al. (2025) — 225 accessions, ~10M SNPs
 - **Inversions:** Wilkinson et al. (2025) — 17 megabase-scale structural variants
-- **Phenotypes:** BLUPs for FBC, FF, AFW, TSS, TC from multi-year trials (1999–2024)
+
 
 ---
 
