@@ -190,7 +190,8 @@ flowchart TB
 │   ├── 12_inspect_gene_mapping_idea2.py    # Gene mapping inspection
 │   ├── 13_generate_manuscript_tables.py    # Generate manuscript tables
 │   ├── 14_breeder_effect_catalogue.py      # Haplotype effect catalogue
-│   ├── 15_generate_assay_sequences.py      # KASP assay flanking sequences
+│   ├── 15a_tag_snps_per_inversion.py       # LD-based tag SNP selection per inversion
+│   ├── 15b_generate_assay_sequences.py     # Flanking sequence extraction with QC
 │   ├── 16_calc_genetic_gain.py             # Expected genetic gain calculation
 │   └── 17_idea2_summary.py                 # Summary report
 │
