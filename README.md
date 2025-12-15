@@ -157,7 +157,6 @@ flowchart TB
 ---
 
 ## Repository Structure
-
 ```
 ├── config/
 │   ├── config_idea1.py                     # Genomic prediction parameters
@@ -188,12 +187,9 @@ flowchart TB
 │   ├── 11_build_candidate_gene_tables_idea2.py  # Candidate gene tables
 │   ├── 11b_summarise_idea2_results.py      # Results summary
 │   ├── 12_inspect_gene_mapping_idea2.py    # Gene mapping inspection
-│   ├── 13_generate_manuscript_tables.py    # Generate manuscript tables
-│   ├── 14_breeder_effect_catalogue.py      # Haplotype effect catalogue
-│   ├── 15a_tag_snps_per_inversion.py       # LD-based tag SNP selection per inversion
-│   ├── 15b_generate_assay_sequences.py     # Flanking sequence extraction with QC
-│   ├── 16_calc_genetic_gain.py             # Expected genetic gain calculation
-│   └── 17_idea2_summary.py                 # Summary report
+│   ├── 13_breeder_haplotype_effects.py     # Haplotype effect estimates
+│   ├── 14_genetic_gain_projections.py      # Expected genetic gain
+│   └── 15_generate_assay_sequences.py      # KASP assay flanking sequences
 │
 ├── 03_deep_learning/
 │   ├── 00_prep_gwas_summary.py             # Prepare GWAS summary for AI
@@ -233,6 +229,9 @@ flowchart TB
 │   ├── figure_S4.py                        # Random vs inversion panel benchmarks
 │   ├── figure_S5.py                        # Deep learning saliency and GWAS concordance
 │   └── figure_S6.py                        # BINN training and hub gene details
+│
+├── supplementary/
+│   └── column_reference.md                 # Code → readable header mapping for all data files
 │
 ├── requirements.txt
 └── README.md
