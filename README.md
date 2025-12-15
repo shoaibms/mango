@@ -299,6 +299,21 @@ Breeding programs can adopt Tier 1 structural panels immediately and layer genom
 
 ---
 
+## Breeder-Facing Outputs
+
+Generate accession-level GEBVs and consensus recommendations:
+```bash
+python 04_binn/22_compare_oof_breeding_values.py
+```
+
+Outputs in `output/breeding_value_concordance/`:
+- `breeder_recommendations.csv` – ranked selection candidates with confidence flags
+- `breeder_consensus_summary.csv` – per-trait consensus configuration
+- `merged_oof.csv` – full OOF predictions across all methods
+
+**Note:** Breeding values are OOF-based (not in-sample). Random CV generates within-panel selections; Structure-aware CV evaluates cross-ancestry portability.
+
+---
 ## Deep Learning for Mechanism, Not Just Prediction
 
 We utilise Wide & Deep networks and Biologically Informed Neural Networks (BINN) not to chase marginal accuracy gains, but as **hypothesis-testing engines**:
