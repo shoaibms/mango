@@ -231,7 +231,7 @@ flowchart TB
 │   └── figure_S6.py                        # BINN training and hub gene details
 │
 ├── supplementary/
-│   └── column_reference.md                 # Code → readable header mapping for all data files
+│   └── column_reference.md                 # Code → readable header mapping for all table & data files
 │
 ├── requirements.txt
 └── README.md
