@@ -217,8 +217,9 @@ flowchart TB
 │   ├── 18_export_polygenic_weights.py      # Export polygenic weight vectors
 │   ├── 19_shap_robustness_check.py         # SHAP robustness validation
 │   ├── 20_generate_hierarchy_figure.py     # Precision breeding hierarchy
-│   └── 21_binn_linear_baseline.py          # BINN decomposition analysis
-│
+│   ├── 21_binn_linear_baseline.py          # BINN decomposition analysis
+│   └── 22_compare_oof_breeding_values.py   # Breeding value concordance
+│ 
 ├── figures/
 │   ├── figure_config.py                    # Shared figure configuration
 │   ├── figure_1.py                         # Population structure and structure cliff
