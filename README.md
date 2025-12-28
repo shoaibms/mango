@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.10+-orange)](https://tensorflow.org/)
 
-**Structural haplotypes act as additive super-genes to bridge the genomic prediction cliff in mango**
+**Structural haplotypes act as supergene-like additive units that mitigate the genomic prediction cliff in mango**
 
 ---
 
@@ -158,11 +158,6 @@ flowchart TB
 
 ## Repository Structure
 ```
-├── config/
-│   ├── config_idea1.py                     # Genomic prediction parameters
-│   ├── config_idea2.py                     # Structural analysis parameters
-│   └── config_idea3.py                     # Deep learning parameters
-│
 ├── 01_genomic_prediction/
 │   ├── 01_build_core_matrices.py           # Build genotype/phenotype matrices from VCF
 │   ├── 01b_het_qc.py                       # Heterozygosity-based paralog removal
@@ -176,20 +171,23 @@ flowchart TB
 ├── 02_structural_haplotypes/
 │   ├── 01_prepare_idea2_datasets.py        # Prepare ML-ready datasets
 │   ├── 02_define_cv_schemes_idea2.py       # Define cross-validation schemes
-│   ├── 03_baseline_linear_models_idea2.py  # Ridge regression baselines
+│   ├── 03_baseline_linear_models_idea2_v2.py    # Ridge regression baselines
 │   ├── 04_xgboost_and_rf_models_idea2.py   # XGBoost and Random Forest models
-│   ├── 05_model_comparison_idea2.py        # Compare model performance
-│   ├── 06_feature_importance_and_postgwas_links_idea2.py  # Feature importance
+│   ├── 05_model_comparison_idea2_v2.py     # Compare model performance
+│   ├── 06_feature_importance_and_postgwas_links_idea2_v2.py  # Feature importance
 │   ├── 07_inversion_augmented_gs_idea2.py  # Inversion-augmented prediction
-│   ├── 08_random_vs_inversion_control_idea2.py  # Random panel benchmarking
-│   ├── 09_permutation_tests_idea2.py       # Permutation significance tests
+│   ├── 08_random_vs_inversion_control_idea2_v2.py  # Random panel benchmarking
+│   ├── 09_permutation_tests_idea2_v2.py    # Permutation significance tests
 │   ├── 10_build_gene_annotation_dict_idea2.py   # Gene annotation dictionary
 │   ├── 11_build_candidate_gene_tables_idea2.py  # Candidate gene tables
-│   ├── 11b_summarise_idea2_results.py      # Results summary
-│   ├── 12_inspect_gene_mapping_idea2.py    # Gene mapping inspection
-│   ├── 13_breeder_haplotype_effects.py     # Haplotype effect estimates
-│   ├── 14_genetic_gain_projections.py      # Expected genetic gain
-│   └── 15_generate_assay_sequences.py      # KASP assay flanking sequences
+│   ├── 11b_summarise_idea2_results_v2.py   # Results summary
+│   ├── 12_inspect_gene_mapping_idea.py     # Gene mapping inspection
+│   ├── 13_generate_manuscript_tables.py    # Generate manuscript tables
+│   ├── 14_breeder_effect_catalogue_v2.py   # Breeder haplotype effect estimates
+│   ├── 15_generate_assay_sequences.py      # KASP assay flanking sequences
+│   ├── 15a_tag_snps_per_inversion.py       # LD-based tag SNP selection
+│   ├── 15b_generate_assay_sequences.py     # KASP assay generator (reference-aware)
+│   └── 16_calc_genetic_gain.py             # Expected genetic gain calculations
 │
 ├── 03_deep_learning/
 │   ├── 00_prep_gwas_summary.py             # Prepare GWAS summary for AI
@@ -200,21 +198,18 @@ flowchart TB
 │   ├── 05_model_performance_summary.py     # Model performance metrics
 │   ├── 06_ai_saliency_multitrait.py        # Gradient saliency analysis
 │   ├── 07_wide_deep_decomposition.py       # Wide vs Deep decomposition
-│   ├── 08_virtual_editing_scenarios.py     # In silico allele editing
 │   ├── 08c_final_virtual_editing.py        # Final virtual editing analysis
 │   ├── 08d_xgboost_verification.py         # XGBoost verification of effects
-│   └── 09_ai_vs_gwas_concordance.py        # AI–GWAS concordance analysis
-│
-├── 04_binn/
+│   ├── 09_ai_vs_gwas_concordance.py        # AI–GWAS concordance analysis
 │   ├── 10_binn_build_maps.py               # SNP-to-gene connectivity maps
 │   ├── 11_binn_model.py                    # BINN architecture definition
 │   ├── 12_binn_train.py                    # BINN training pipeline
 │   ├── 13_binn_explain.py                  # BINN interpretability analysis
 │   ├── 18_export_polygenic_weights.py      # Export polygenic weight vectors
 │   ├── 19_shap_robustness_check.py         # SHAP robustness validation
-│   ├── 20_generate_hierarchy_figure.py     # Precision breeding hierarchy
+│   ├── 20_generate_hierarchy_figure_v2.py  # Precision breeding hierarchy
 │   ├── 21_binn_linear_baseline.py          # BINN decomposition analysis
-│   └── 22_compare_oof_breeding_values.py   # Breeding value concordance
+│   └── 22_compare_oof_breeding_values_final.py  # Breeding value concordance
 │ 
 ├── figures/
 │   ├── figure_config.py                    # Shared figure configuration
@@ -231,7 +226,7 @@ flowchart TB
 │   └── figure_S6.py                        # BINN training and hub gene details
 │
 ├── supplementary/
-│   └── column_reference.md                 # Code → readable header mapping for all table & data files
+│   └── column_reference.md                 # Code → readable header mapping for all data files
 │
 ├── requirements.txt
 └── README.md
