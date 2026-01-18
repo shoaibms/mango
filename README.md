@@ -233,7 +233,7 @@ mango/
 │   ├── 01_id_mapping.py                    # Sample ID mapping validation
 │   └── 02_external_validation.py           # External validation (Jighly et al.)
 │
-└── figures/
+└── 05_figures/
     ├── config.py                           # Shared figure configuration
     ├── fig1_population_structure.py        # Population structure and structure cliff
     ├── fig2_structural_haplotypes.py       # Structural haplotypes as predictors
