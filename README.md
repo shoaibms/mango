@@ -1,4 +1,4 @@
-# Mango Genomic Prediction
+# Mango Structural Haplotypes
 
 [![Python](https://img.shields.io/badge/python-3.9+-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
@@ -12,17 +12,17 @@
 
 ### The Challenge: The Structure Cliff
 
-Genomic selection promises to accelerate tree crop breeding, but predictive accuracy often collapses when models are moved between ancestry groups—a **Structure Cliff**. This has quietly limited global breeding efforts, while remaining poorly quantified and mechanistically unexplained.
+Genomic selection promises to accelerate tree crop breeding, but predictive accuracy often collapses when models are moved between ancestry groups—a **structure cliff**. This has quietly limited global breeding efforts, while remaining poorly quantified and mechanistically unexplained.
 
-This repository contains the full, reproducible analysis behind a 225-accession *Mangifera indica* diversity panel spanning three major ancestry groups: Oceania/Australia, Americas–South Asia admixed, and Southeast Asian gene pools. We ask, trait-by-trait:
+This repository contains the full, reproducible analysis behind a 225-accession *Mangifera indica* diversity panel spanning Oceania/Australia, Americas–South Asia, and Southeast Asian gene pools. We ask, trait-by-trait:
 
 - Which fruit quality traits retain predictive accuracy across ancestries?
 - When can a small structural haplotype panel replace a dense genome-wide SNP panel?
 - Does deep learning uncover hidden epistasis, or simply re-express additive structure?
 
-### The Solution: Supergene-like Structural Haplotypes
+### The Solution: Structural Haplotypes as Supergene-like Units
 
-The answer is that a handful of structural haplotypes behave as **supergene-like additive units**, mitigating the genomic prediction cliff for fruit weight and vigour traits, while other traits (sugars, firmness) collapse into non-transferable, ancestry-bound polygenic architecture.
+The answer is that a handful of structural haplotypes behave as **supergene-like additive units**, preserving genomic prediction across ancestries for colour and weight traits, while other traits (sugars, firmness) collapse into non-transferable, local polygenic architecture.
 
 > This repository is intended for quantitative geneticists, breeders, and ML practitioners working on structured perennial crops.
 
@@ -32,21 +32,22 @@ The answer is that a handful of structural haplotypes behave as **supergene-like
 
 | Finding | Evidence |
 |---------|----------|
-| **Structure Cliff is trait-specific** | Under leave-cluster-out CV, cross-ancestry accuracy ranges from r ≈ 0.16 (AFW) to r < 0 for firmness and TSS, partitioning traits into partially transferable (AFW, FBC, TC) and ancestry-bound (TSS, FF) sets. |
-| **Inversions act as supergene-like units** | A 17-marker structural inversion panel captures substantial accuracy for portable traits with ultra-efficient marker density, outperforming 5,000 size-matched random panels (p < 0.001). |
-| **Strict additivity confirmed** | Wide & Deep synergy scores explain <5% of joint perturbation effects, supporting additive supergene-like behaviour rather than pervasive hidden epistasis. |
-| **Architecture trumps algorithm** | BINN accuracy gains are driven ~60% by biologically informed feature selection and ~40% by neural architecture; cross-ancestry portability still fails for diffuse polygenic traits regardless of model sophistication. |
-| **Zero-cost breeder toolkit** | Public whole-genome sequencing is converted into breeder-ready KASP assays and per-cycle gain projections without additional genotyping, using inversion-tagging panels validated across ancestry groups. |
+| **Structure cliff is trait-specific** | Under leave-cluster-out CV, cross-ancestry accuracy ranges from r ≈ 0.19 (AFW) to r < 0 for firmness and TSS, indicating complete failure for some traits. |
+| **Inversions act as supergenes** | A 17-marker structural inversion panel captures ≈86% of the accuracy of a 19,790-SNP genome-wide panel for fruit blush colour and remains predictive across gene pools. |
+| **Strict additivity confirmed** | Wide & Deep synergy scores explain <0.1% of variance beyond block main effects, supporting additive supergene behaviour rather than pervasive hidden epistasis. |
+| **Architecture trumps algorithm** | BINN gains are driven mostly by biologically informed feature selection; even with improved within-population r, cross-ancestry portability still fails for polygenic traits. |
+| **Zero-cost breeder toolkit** | Public whole-genome sequencing is converted into a breeder-ready marker toolkit with no new genotyping required, using inversion panels and ancestry-aware thresholds. |
 
 ---
 
 ## Workflow Overview
 
-The analysis is organised into three conceptual modules:
+The analysis is organised into four conceptual blocks:
 
-1. **Genomic prediction (Module 1)** — Build genotype–phenotype matrices and quantify the Structure Cliff under random, cluster-balanced, and leave-cluster-out CV schemes.
-2. **Structural haplotypes (Module 2)** — Define inversion-tagging marker panels, benchmark against 5,000 size-matched random panels, and generate KASP assay sequences.
-3. **Deep learning + BINN (Module 3)** — Train Wide & Deep and Biologically Informed Neural Networks, run saliency/SHAP analysis, perform virtual allele editing, and derive the Precision Breeding Hierarchy.
+1. **Genomic prediction (01_genomic_prediction/)** — Build genotype–phenotype matrices and quantify the structure cliff under different CV schemes.
+2. **Structural haplotypes (02_structural_haplotypes/)** — Define inversion-tagging marker panels and benchmark against matched random panels.
+3. **Deep learning (03_deep_learning/)** — Train Wide & Deep and BINN models, run saliency/SHAP, perform virtual allele editing, and derive the Precision Breeding Hierarchy.
+4. **Validation (04_validation/)** — External validation against independent datasets.
 
 ---
 
@@ -131,7 +132,7 @@ flowchart TB
 flowchart TB
     A["Trait Assessment"] --> B{"Transferability<br/>Index > 0.3?"}
     
-    B -->|Yes| C{"Structural<br/>Concentration ≥ 3.5%?"}
+    B -->|Yes| C{"Structural<br/>Concentration High?"}
     B -->|No| D{"Transferability<br/>Index > 0.1?"}
     
     C -->|Yes| E["Tier 1<br/>Global Markers"]
@@ -158,83 +159,93 @@ flowchart TB
 ## Repository Structure
 
 ```
+mango/
+├── README.md
+├── LICENSE
+├── requirements.txt
+├── environment.yml
+│
+├── docs/
+│   └── DATA_ACCESS.md                      # Data download guidance
+│
 ├── config/
-│   ├── config_idea1.py                     # Genomic prediction parameters
-│   ├── config_idea2.py                     # Structural analysis parameters
-│   └── config_idea3.py                     # Deep learning parameters
+│   └── config.py                           # Shared configuration parameters
+│
+├── data/
+│   └── data.7z                             # Compressed data archive
 │
 ├── 01_genomic_prediction/
 │   ├── 01_build_core_matrices.py           # Build genotype/phenotype matrices from VCF
-│   ├── 01b_het_qc.py                       # Heterozygosity-based paralog removal
-│   ├── 02_gs_kfold_baseline.py             # Random K-fold cross-validation baseline
-│   ├── 03_gs_structure_aware_cv.py         # Cluster-balanced and leave-cluster-out CV
-│   ├── 04_internal_gwas_and_weights.py     # Internal GWAS for SNP weighting
-│   ├── 04_gwas_to_snp_weights.py           # Convert GWAS to prediction weights
-│   ├── 05_gs_weighted_and_fixed_effects.py # GWAS-weighted genomic selection
-│   └── 06_idea1_summary.py                 # Summary statistics and reports
+│   ├── 02_paralog_filter.py                # Heterozygosity-based paralog removal
+│   ├── 03_kfold_baseline.py                # Random K-fold cross-validation baseline
+│   ├── 04_structure_aware_cv.py            # Cluster-balanced and leave-cluster-out CV
+│   ├── 05_internal_gwas.py                 # Internal GWAS for SNP weighting
+│   ├── 06_gwas_to_weights.py               # Convert GWAS statistics to prediction weights
+│   ├── 07_weighted_prediction.py           # GWAS-weighted genomic selection
+│   └── 08_summarise_results.py             # Summary statistics and reports
 │
 ├── 02_structural_haplotypes/
-│   ├── 01_prepare_idea2_datasets.py        # Prepare ML-ready datasets
-│   ├── 02_define_cv_schemes_idea2.py       # Define cross-validation schemes
-│   ├── 03_baseline_linear_models_idea2_v2.py    # Ridge regression baselines
-│   ├── 04_xgboost_and_rf_models_idea2.py   # XGBoost and Random Forest models
-│   ├── 05_model_comparison_idea2_v2.py     # Compare model performance
-│   ├── 06_feature_importance_and_postgwas_links_idea2_v2.py  # Feature importance
-│   ├── 07_inversion_augmented_gs_idea2.py  # Inversion-augmented prediction
-│   ├── 08_random_vs_inversion_control_idea2_v2.py  # Random panel benchmarking
-│   ├── 09_permutation_tests_idea2_v2.py    # Permutation significance tests
-│   ├── 10_build_gene_annotation_dict_idea2.py   # Gene annotation dictionary
-│   ├── 11_build_candidate_gene_tables_idea2.py  # Candidate gene tables
-│   ├── 11b_summarise_idea2_results_v2.py   # Results summary
-│   ├── 12_inspect_gene_mapping_idea.py     # Gene mapping inspection
-│   ├── 13_generate_manuscript_tables.py    # Generate manuscript tables
-│   ├── 14_breeder_effect_catalogue_v2.py   # Breeder haplotype effect estimates
-│   ├── 15_generate_assay_sequences.py      # KASP assay flanking sequences
-│   ├── 15a_tag_snps_per_inversion.py       # LD-based tag SNP selection
-│   ├── 15b_generate_assay_sequences.py     # KASP assay generator (reference-aware)
-│   └── 16_calc_genetic_gain.py             # Expected genetic gain calculations
+│   ├── 01_prepare_datasets.py              # Prepare ML-ready datasets
+│   ├── 02_define_cv_schemes.py             # Define cross-validation schemes
+│   ├── 03_linear_baselines.py              # Ridge regression baselines
+│   ├── 04_tree_models.py                   # XGBoost and Random Forest models
+│   ├── 05_model_comparison.py              # Compare model performance across schemes
+│   ├── 06_feature_importance.py            # Feature importance and post-GWAS links
+│   ├── 07_inversion_prediction.py          # Inversion-augmented genomic prediction
+│   ├── 08_random_panel_benchmark.py        # Random 17-SNP panel benchmarking
+│   ├── 09_permutation_tests.py             # Permutation significance tests
+│   ├── 10_gene_annotation.py               # Build gene annotation dictionary
+│   ├── 11_candidate_genes.py               # Build candidate gene tables
+│   ├── 12_results_summary_initial.py       # Initial results summary
+│   ├── 13_gene_mapping_qc.py               # Gene mapping quality control
+│   ├── 14_manuscript_tables.py             # Generate manuscript tables
+│   ├── 15_effect_catalogue.py              # Breeder effect catalogue
+│   ├── 16_kasp_assay_design.py             # KASP assay sequence generation
+│   ├── 17_genetic_gain.py                  # Expected genetic gain calculation
+│   ├── 18_summary_stats.py                 # Summary statistics
+│   ├── 19_tag_snp_selection.py             # Tag SNP selection per inversion
+│   └── 20_final_summary.py                 # Final results summary
 │
 ├── 03_deep_learning/
-│   ├── 00_prep_gwas_summary.py             # Prepare GWAS summary for AI
-│   ├── 01_ai_core_data.py                  # Prepare deep learning input data
-│   ├── 02_cnn_tensor_builder.py            # Build CNN input tensors
-│   ├── 03_train_cnn_single_trait.py        # Single-trait CNN training
-│   ├── 04_train_wide_deep_multitask.py     # Multi-task Wide & Deep training
-│   ├── 05_model_performance_summary.py     # Model performance metrics
-│   ├── 06_ai_saliency_multitrait.py        # Gradient saliency analysis
-│   ├── 07_wide_deep_decomposition.py       # Wide vs Deep decomposition
-│   ├── 08c_final_virtual_editing.py        # Final virtual editing analysis
-│   ├── 08d_xgboost_verification.py         # XGBoost verification of effects
-│   ├── 09_ai_vs_gwas_concordance.py        # AI–GWAS concordance analysis
-│   ├── 10_binn_build_maps.py               # SNP-to-gene connectivity maps
-│   ├── 11_binn_model.py                    # BINN architecture definition
-│   ├── 12_binn_train.py                    # BINN training pipeline
-│   ├── 13_binn_explain.py                  # BINN interpretability analysis
-│   ├── 18_export_polygenic_weights.py      # Export polygenic weight vectors
-│   ├── 19_shap_robustness_check.py         # SHAP robustness validation
-│   ├── 20_generate_hierarchy_figure_v2.py  # Precision breeding hierarchy
-│   ├── 21_binn_linear_baseline.py          # BINN decomposition analysis
-│   └── 22_compare_oof_breeding_values_final.py  # Breeding value concordance
-│ 
-├── figures/
-│   ├── figure_config.py                    # Shared figure configuration
-│   ├── figure_1.py                         # Population structure and structure cliff
-│   ├── figure_2.py                         # Structural haplotypes as predictors
-│   ├── figure_3.py                         # Deep learning confirms additivity
-│   ├── figure_4.py                         # Polygenic backbones and gene hubs
-│   ├── figure_5.py                         # Precision breeding hierarchy
-│   ├── figure_S1.py                        # Phenotype distributions and PC3-PC4
-│   ├── figure_S2.py                        # GWAS landscape and inversion context
-│   ├── figure_S3.py                        # CV diagnostics and structure correction
-│   ├── figure_S4.py                        # Random vs inversion panel benchmarks
-│   ├── figure_S5.py                        # Deep learning saliency and GWAS concordance
-│   └── figure_S6.py                        # BINN training and hub gene details
+│   ├── 01_prep_gwas.py                     # GWAS summary preprocessing
+│   ├── 02_prepare_data.py                  # Core data preparation for AI models
+│   ├── 03_build_tensors.py                 # CNN tensor construction
+│   ├── 04_train_cnn.py                     # Single-trait CNN training
+│   ├── 05_train_wide_deep.py               # Wide & Deep network training
+│   ├── 06_model_performance.py             # Model performance metrics
+│   ├── 07_saliency_analysis.py             # Gradient saliency analysis
+│   ├── 08_pathway_decomposition.py         # Wide vs Deep pathway decomposition
+│   ├── 09_virtual_editing_basic.py         # Basic in silico allele editing
+│   ├── 10_virtual_editing_final.py         # Final virtual editing analysis
+│   ├── 11_xgboost_verification.py          # XGBoost verification of effects
+│   ├── 12_gwas_concordance.py              # AI–GWAS concordance analysis
+│   ├── 13_binn_connectivity.py             # SNP-to-gene connectivity maps
+│   ├── 14_binn_architecture.py             # BINN architecture definition
+│   ├── 15_binn_train.py                    # BINN training pipeline
+│   ├── 16_binn_interpret.py                # BINN interpretability analysis
+│   ├── 17_binn_export_weights.py           # Export polygenic weight vectors
+│   ├── 18_shap_robustness.py               # SHAP robustness validation
+│   ├── 19_breeding_hierarchy.py            # Precision breeding hierarchy figure
+│   ├── 20_binn_linear_baseline.py          # BINN decomposition analysis
+│   └── 21_breeding_values.py               # Breeding value concordance
 │
-├── supplementary/
-│   └── column_reference.md                 # Code → readable header mapping for all data files
+├── 04_validation/
+│   ├── 01_id_mapping.py                    # Sample ID mapping validation
+│   └── 02_external_validation.py           # External validation (Jighly et al.)
 │
-├── requirements.txt
-└── README.md
+└── figures/
+    ├── config.py                           # Shared figure configuration
+    ├── fig1_population_structure.py        # Population structure and structure cliff
+    ├── fig2_structural_haplotypes.py       # Structural haplotypes as predictors
+    ├── fig3_deep_learning.py               # Deep learning confirms additivity
+    ├── fig4_polygenic_architecture.py      # Polygenic backbones and gene hubs
+    ├── fig5_breeding_hierarchy.py          # Precision breeding hierarchy
+    ├── figS1_phenotypes.py                 # Phenotype distributions and PC3-PC4
+    ├── figS2_gwas_landscape.py             # GWAS landscape and inversion context
+    ├── figS3_cv_diagnostics.py             # CV diagnostics and structure correction
+    ├── figS4_panel_benchmark.py            # Random vs inversion panel benchmarks
+    ├── figS5_saliency.py                   # Deep learning saliency and GWAS concordance
+    └── figS6_binn_details.py               # BINN training and hub gene details
 ```
 
 ---
@@ -247,7 +258,7 @@ Clone the repository and create the conda environment:
 git clone https://github.com/shoaibms/mango.git
 cd mango
 
-# Create environment (environment.yml defines the name 'mango-gs')
+# Create environment
 conda env create -f environment.yml
 conda activate mango-gs
 
@@ -264,25 +275,28 @@ conda activate mango-gs
 After activating the environment from the project root:
 
 ```bash
-# 1. Build core genotype + phenotype matrices (Module 1)
+# 1. Build core genotype + phenotype matrices
 python 01_genomic_prediction/01_build_core_matrices.py
 
-# 2. Run structure-aware genomic prediction and Structure Cliff analysis
-python 01_genomic_prediction/03_gs_structure_aware_cv.py
+# 2. Run structure-aware genomic prediction and structure cliff analysis
+python 01_genomic_prediction/04_structure_aware_cv.py
 
-# 3. Benchmark structural inversion panels vs random panels (Module 2)
-python 02_structural_haplotypes/08_random_vs_inversion_control_idea2_v2.py
+# 3. Benchmark structural inversion panels vs random panels
+python 02_structural_haplotypes/08_random_panel_benchmark.py
 
-# 4. Train Wide & Deep and run final virtual editing (Module 3)
-python 03_deep_learning/04_train_wide_deep_multitask.py
-python 03_deep_learning/08c_final_virtual_editing.py
+# 4. Train Wide & Deep and run virtual editing
+python 03_deep_learning/05_train_wide_deep.py
+python 03_deep_learning/10_virtual_editing_final.py
 
 # 5. Train BINN and generate the Precision Breeding Hierarchy
-python 03_deep_learning/12_binn_train.py
-python 03_deep_learning/20_generate_hierarchy_figure_v2.py
+python 03_deep_learning/15_binn_train.py
+python 03_deep_learning/19_breeding_hierarchy.py
+
+# 6. Run external validation
+python 04_validation/02_external_validation.py
 ```
 
-Each script writes CSV outputs into the `output/` tree and figures (PDF/PNG) into `figures/`. Figure scripts are one-to-one with the manuscript's main figures.
+Each script writes CSV outputs into the `output/` tree and figures (PDF/PNG) into `output/figures/`. Figure scripts are one-to-one with the manuscript's main figures.
 
 ---
 
@@ -290,27 +304,28 @@ Each script writes CSV outputs into the `output/` tree and figures (PDF/PNG) int
 
 A central design goal of this work is **zero marginal genotyping cost**:
 
-- We take existing public WGS data and derive a **minimal inversion-tagging marker toolkit**.
+- We take existing public WGS data and derive a **minimal inversion and marker toolkit**.
 - These markers are designed for KASP (or similar) assays and validated under cross-ancestry prediction.
-- This makes it possible to deploy global, ancestry-aware selection for portable traits without generating a single new genotype.
+- This makes it possible to deploy global, ancestry-aware selection for key traits without generating a single new genotype.
 
-Breeding programs can adopt Tier 1 structural panels immediately and layer genomic selection (Tier 2) or local recalibration (Tier 3) only where justified by trait architecture.
+Breeding programs can adopt Tier 1 structural panels immediately and layer genomic selection (Tier 2) or local recalibration (Tier 3) only where justified.
 
 ---
 
 ## Breeder-Facing Outputs
 
 Generate accession-level GEBVs and consensus recommendations:
+
 ```bash
-python 03_deep_learning/22_compare_oof_breeding_values_final.py
+python 03_deep_learning/21_breeding_values.py
 ```
 
-Outputs in `output/breeding_value_concordance/`:
+Outputs in `output/breeding_values/`:
 - `breeder_recommendations.csv` — ranked selection candidates with confidence flags
 - `breeder_consensus_summary.csv` — per-trait consensus configuration
 - `merged_oof.csv` — full OOF predictions across all methods
 
-**Note:** Breeding values are OOF-based (not in-sample). Random CV generates within-panel selections; Structure-aware CV evaluates cross-ancestry portability.
+**Note:** Breeding values are OOF-based (not in-sample). Random CV generates within-panel selections; structure-aware CV evaluates cross-ancestry portability.
 
 ---
 
@@ -321,7 +336,7 @@ We utilise Wide & Deep networks and Biologically Informed Neural Networks (BINN)
 | Approach | Insight |
 |----------|---------|
 | **Saliency Mapping** | Prediction relies on diffuse polygenic backbones, except where structural "knobs" exist |
-| **Virtual Allele Editing** | Structural haplotypes act as supergene-like, additive units with no trade-offs |
+| **Virtual Allele Editing** | Structural haplotypes act as quasi-Mendelian, additive units with no trade-offs |
 | **BINN Decomposition** | ~60% of accuracy gains from biologically informed feature selection; ~40% from architecture |
 | **No Cryptic Epistasis** | Models confirm the structure cliff is architectural, not a failure of linear modelling |
 
@@ -331,10 +346,11 @@ We utilise Wide & Deep networks and Biologically Informed Neural Networks (BINN)
 
 This study re-analyses publicly available data:
 
-- **Genotypes:** Munyengwa et al. (2025) — 225 accessions, ~10M SNPs ([UQ RDM](https://rdm.uq.edu.au/files/c28a32e6-b688-4afe-a6ef-9ce29e7da472))
-- **Inversions:** Wilkinson et al. (2025) — 17 megabase-scale structural variants
-- **Phenotypes:** Wilkinson et al. (2025) — Five traits: FBC, AFW, TC, TSS, FF (Table S1 in publication)
-- **Reference genome:** *Mangifera indica* v1 ([NCBI GCF_011075055.1](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_011075055.1/))
+- **Genotypes:** Munyengwa et al. — 225 accessions, ~10M SNPs
+- **Inversions:** Wilkinson et al. — 17 megabase-scale structural variants
+- **External validation:** Jighly et al. — 610-accession integrated panel
+
+See `docs/DATA_ACCESS.md` for download instructions.
 
 ---
 
@@ -349,6 +365,8 @@ This study re-analyses publicly available data:
 | XGBoost | ≥1.7 |
 | TensorFlow | ≥2.12 |
 | SHAP | ≥0.41 |
+| matplotlib | ≥3.5 |
+| seaborn | ≥0.12 |
 
 ---
 
@@ -369,7 +387,10 @@ The codebase is modular and can be adapted to other species with minimal changes
 If you use this code or concepts in your work, please cite:
 
 ```
-[Citation to be added upon publication]
+Shoaib, M., Ali, A., Blanco-Martin, B., Kant, S., & Hayden, M. J. (2026). 
+Structural haplotypes act as supergene-like additive units that mitigate 
+the genomic prediction cliff in mango. 
+https://doi.org/[DOI]
 ```
 
 ---
@@ -382,6 +403,6 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ## Contact
 
-**Shoaib Mirza** — <shoaibmirza2200@gmail.com>
+**Mirza Shoaib** — M.Shoaib@latrobe.edu.au | shoaib.mirza@agriculture.vic.gov.au
 
-Project: <https://github.com/shoaibms/mango>
+Project: https://github.com/shoaibms/mango
