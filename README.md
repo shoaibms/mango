@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.12+-orange)](https://tensorflow.org/)
 
-**Structural haplotypes act as supergene-like additive units that mitigate the genomic prediction cliff in mango**
+**Structural haplotypes act as supergene-like additive units that partially mitigate the genomic prediction cliff in mango**
 
 ---
 
@@ -12,17 +12,13 @@
 
 ### The Challenge: The Structure Cliff
 
-Genomic selection promises to accelerate tree crop breeding, but predictive accuracy often collapses when models are moved between ancestry groups—a **structure cliff**. This has quietly limited global breeding efforts, while remaining poorly quantified and mechanistically unexplained.
+Genomic prediction accuracy can decline sharply when models are transferred between ancestry groups (a "structure cliff"). Here we quantify this portability trait-by-trait in a 225-accession *Mangifera indica* diversity panel spanning three major ancestry clusters, using strict cross-validation schemes (random, cluster-balanced, and leave-cluster-out) with fold-wise PC correction.
 
-This repository contains the full, reproducible analysis behind a 225-accession *Mangifera indica* diversity panel spanning Oceania/Australia, Americas–South Asia, and Southeast Asian gene pools. We ask, trait-by-trait:
+### Key Result
 
-- Which fruit quality traits retain predictive accuracy across ancestries?
-- When can a small structural haplotype panel replace a dense genome-wide SNP panel?
-- Does deep learning uncover hidden epistasis, or simply re-express additive structure?
+We show that megabase-scale structural haplotypes (inversions) can behave as supergene-like, largely additive units for specific traits, preserving measurable cross-ancestry prediction for selected traits, whereas others collapse under leave-cluster-out transfer. We integrate marker-efficiency benchmarking, virtual editing additivity tests, and a gene-constrained BINN to link architecture to deployment strategy (Precision Breeding Hierarchy).
 
-### The Solution: Structural Haplotypes as Supergene-like Units
-
-The answer is that a handful of structural haplotypes behave as **supergene-like additive units**, preserving genomic prediction across ancestries for colour and weight traits, while other traits (sugars, firmness) collapse into non-transferable, local polygenic architecture.
+All portability claims here refer to structure-aware cross-validation within this 225-accession panel; broader transfer requires independent external panels.
 
 > This repository is intended for quantitative geneticists, breeders, and ML practitioners working on structured perennial crops.
 
@@ -30,13 +26,13 @@ The answer is that a handful of structural haplotypes behave as **supergene-like
 
 ## Key Findings
 
-| Finding | Evidence |
-|---------|----------|
-| **Structure cliff is trait-specific** | Under leave-cluster-out CV, cross-ancestry accuracy ranges from r ≈ 0.19 (AFW) to r < 0 for firmness and TSS, indicating complete failure for some traits. |
-| **Inversions act as supergenes** | A 17-marker structural inversion panel captures ≈86% of the accuracy of a 19,790-SNP genome-wide panel for fruit blush colour and remains predictive across gene pools. |
-| **Strict additivity confirmed** | Wide & Deep synergy scores explain <0.1% of variance beyond block main effects, supporting additive supergene behaviour rather than pervasive hidden epistasis. |
-| **Architecture trumps algorithm** | BINN gains are driven mostly by biologically informed feature selection; even with improved within-population r, cross-ancestry portability still fails for polygenic traits. |
-| **Zero-cost breeder toolkit** | Public whole-genome sequencing is converted into a breeder-ready marker toolkit with no new genotyping required, using inversion panels and ancestry-aware thresholds. |
+| Finding | Evidence (from this study) |
+|---------|----------------------------|
+| **Portability is trait-specific (structure cliff)** | Under PC-corrected leave-cluster-out CV, cross-ancestry accuracy is positive for AFW (r=0.192), FBC (r=0.153), and TC (r=0.124), but collapses for FF (r=−0.094) and TSS (r=−0.056). |
+| **Structural haplotypes support Tier-1 marker deployment for selected traits** | Precision Breeding Hierarchy assigns FBC and TC to Tier 1 (Global markers), AFW to Tier 2 (Genome-wide GS), and FF/TSS to Tier 3 (Local GS only), based on transferability and structural concentration. |
+| **Predominantly additive behaviour within structural blocks** | Virtual editing shows joint block edits match the sum of single-locus edits; synergy terms are <0.1% of block effects across traits (e.g., FBC: 0.199 vs 0.199; synergy ≈ −6.29e−06). |
+| **Deep learning is used for mechanism, not "hidden epistasis"** | Saliency landscapes are diffuse and concordance with GWAS significance is weak (e.g., FBC Spearman ρ=0.11), supporting interpretation as re-weighting additive signal rather than uncovering a distinct epistatic architecture. |
+| **Breeder-facing deliverables from public data** | The workflow outputs KASP-ready sequences, haplotype effect catalogues, per-cycle gain projections, and open-source code derived from public WGS resources without additional discovery genotyping (cross-pool deployment still requires local validation). |
 
 ---
 
@@ -297,15 +293,17 @@ Each script writes CSV outputs into the `output/` tree and figures (PDF/PNG) int
 
 ---
 
-## Zero-Cost Deployment for Breeding Programs
+## Low-Cost Deployment for Breeding Programs
 
-A central design goal of this work is **zero marginal genotyping cost**:
+A central design goal of this work is **minimal additional genotyping cost**:
 
 - We take existing public WGS data and derive a **minimal inversion and marker toolkit**.
 - These markers are designed for KASP (or similar) assays and validated under cross-ancestry prediction.
-- This makes it possible to deploy global, ancestry-aware selection for key traits without generating a single new genotype.
+- This makes it possible to deploy ancestry-aware selection for key traits without generating new discovery genotypes.
 
-Breeding programs can adopt Tier 1 structural panels immediately and layer genomic selection (Tier 2) or local recalibration (Tier 3) only where justified.
+Breeding programs can prioritise Tier 1 panels as a first deployment option, contingent on local validation, and layer genomic selection (Tier 2) or local recalibration (Tier 3) only where justified.
+
+**Important:** Cross-pool deployment of inversion-tagging assays requires local validation of allele frequency and effect direction in the target pool.
 
 ---
 
@@ -328,14 +326,14 @@ Outputs in `output/breeding_values/`:
 
 ## Deep Learning for Mechanism, Not Just Prediction
 
-We utilise Wide & Deep networks and Biologically Informed Neural Networks (BINN) not to chase marginal accuracy gains, but as **hypothesis-testing engines**:
+We use Wide & Deep networks and Biologically Informed Neural Networks (BINN) not to chase marginal accuracy gains, but as **hypothesis-testing engines**:
 
 | Approach | Insight |
 |----------|---------|
-| **Saliency Mapping** | Prediction relies on diffuse polygenic backbones, except where structural "knobs" exist |
-| **Virtual Allele Editing** | Structural haplotypes act as quasi-Mendelian, additive units with no trade-offs |
-| **BINN Decomposition** | ~60% of accuracy gains from biologically informed feature selection; ~40% from architecture |
-| **No Cryptic Epistasis** | Models confirm the structure cliff is architectural, not a failure of linear modelling |
+| **Saliency Mapping** | Prediction relies on diffuse polygenic backbones, except where concentrated structural effects exist |
+| **Virtual Allele Editing** | Structural haplotypes act as largely additive units with minimal synergy |
+| **BINN Decomposition** | Gains can arise from biologically informed feature selection and/or architecture |
+| **Concordance Analysis** | Weak saliency–GWAS correlation supports additive re-weighting rather than distinct epistatic architecture |
 
 ---
 
@@ -385,9 +383,8 @@ If you use this code or concepts in your work, please cite:
 
 ```
 Shoaib, M., Ali, A., Blanco-Martin, B., Kant, S., & Hayden, M. J. (2026). 
-Structural haplotypes act as supergene-like additive units that mitigate 
-the genomic prediction cliff in mango. 
-https://doi.org/[DOI]
+Structural haplotypes act as supergene-like additive units that partially 
+mitigate the genomic prediction cliff in mango. Manuscript submitted.
 ```
 
 ---
