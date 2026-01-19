@@ -163,7 +163,7 @@ mango/
 ├── README.md
 ├── requirements.txt
 │
-├── DATA_ACCESS.md                      # Data download guidance
+├── DATA_ACCESS.md                          # Data download guidance
 │
 ├── config/
 │   └── config.py                           # Shared configuration parameters
