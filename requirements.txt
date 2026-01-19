@@ -1,0 +1,25 @@
+# Mango Genomic Selection Project
+# Python dependencies for genomic prediction, deep learning, and figure generation
+
+# Core scientific computing
+numpy>=1.21.0
+pandas>=1.3.0
+
+# Machine learning
+scikit-learn>=1.0.0
+xgboost>=1.5.0
+
+# Deep learning
+tensorflow>=2.10.0
+
+# Visualization
+matplotlib>=3.5.0
+seaborn>=0.11.0
+Pillow>=8.0.0
+
+# Model interpretation
+shap>=0.41.0
+
+# Parallel processing and utilities
+joblib>=1.1.0
+tqdm>=4.62.0
